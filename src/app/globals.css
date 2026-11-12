@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #fbfbf8; color: #19342d; font-family: Arial, sans-serif; }
+button, input, textarea, select { font: inherit; }
+button:disabled { cursor: not-allowed; opacity: .6; }
+::selection { background: #d7f36b; color: #19342d; }
+.container-page { width: min(1180px, calc(100% - 40px)); margin-inline: auto; }
+.soft-grid { background-image: radial-gradient(rgba(35,92,73,.10) .8px, transparent .8px); background-size: 14px 14px; }
