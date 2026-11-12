@@ -1,0 +1,11 @@
+import { NextResponse } from "next/server";
+import { asc, eq } from "drizzle-orm";
+import { z } from "zod";
+import { getDb } from "@/db";
+import { categories, products } from "@/db/schema";
+import { requireAdminApi } from "@/lib/auth";
+import { slugify } from "@/lib/format";
+export const dynamic = 'force-dynamic';
+const productInput=z.object({name:z.string().trim().min(2).max(180),slug:z.string().trim().max(200).optional(),description:z.string().trim().min(5).max(5000),price:z.number().int().positive().max(1000000000),compareAtPrice:z.number().int().positive().nullable().optional(),stock:z.number().int().min(0).max(1000000),categoryId:z.number().int().positive().nullable().optional(),imageUrl:z.string().url().max(2000).nullable().optional(),imagePublicId:z.string().max(255).nullable().optional(),featured:z.boolean().default(false),active:z.boolean().default(true)});
+export async function GET(){const auth=await requireAdminApi();if(auth)return auth;const data=await getDb().select({id:products.id,name:products.name,slug:products.slug,description:products.description,price:products.price,compareAtPrice:products.compareAtPrice,stock:products.stock,imageUrl:products.imageUrl,imagePublicId:products.imagePublicId,categoryId:products.categoryId,featured:products.featured,active:products.active,categoryName:categories.name}).from(products).leftJoin(categories,eq(products.categoryId,categories.id)).orderBy(asc(products.name));return NextResponse.json(data);}
+export async function POST(request:Request){const auth=await requireAdminApi();if(auth)return auth;const parsed=productInput.safeParse(await request.json().catch(()=>null));if(!parsed.success)return NextResponse.json({error:"بيانات المنتج غير صالحة",details:parsed.error.flatten()},{status:400});const body=parsed.data;const slug=slugify(body.slug||body.name);if(!slug)return NextResponse.json({error:"اسم المنتج غير صالح"},{status:400});try{const [created]=await getDb().insert(products).values({...body,slug,compareAtPrice:body.compareAtPrice??null,imageUrl:body.imageUrl??null,imagePublicId:body.imagePublicId??null,categoryId:body.categoryId??null}).returning();return NextResponse.json(created,{status:201});}catch(error){return NextResponse.json({error:"تعذر حفظ المنتج. تحقق من عدم تكرار الرابط المختصر أو القسم."},{status:409});}}

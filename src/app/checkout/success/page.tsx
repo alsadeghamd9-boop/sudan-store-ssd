@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { Check } from "lucide-react";
+type Props={searchParams:Promise<{order?:string}>};
+export default async function SuccessPage({searchParams}:Props){const {order}=await searchParams;return <main className="container-page flex min-h-[55vh] items-center justify-center py-16"><div className="w-full max-w-xl rounded-[30px] bg-white p-8 text-center shadow-soft"><span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-lime text-forest"><Check size={30}/></span><h1 className="mt-5 text-3xl font-black">شكراً لطلبك!</h1><p className="mt-3 leading-7 text-muted">استلمنا طلبك بنجاح. سيتواصل معك فريقنا لتأكيد التفاصيل والتوصيل.</p>{order&&<p className="mt-5 rounded-xl bg-[#f4f7f0] p-3 text-sm">رقم الطلب: <b dir="ltr">{order}</b></p>}<Link href="/products" className="mt-6 inline-flex rounded-full bg-forest px-6 py-3 font-bold text-white">مواصلة التسوق</Link></div></main>}
